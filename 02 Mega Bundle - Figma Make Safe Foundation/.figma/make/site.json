@@ -1,0 +1,12 @@
+{
+  "title": "Droply",
+  "description": "Droply is a multi-tenant ordering platform for neighborhood water stations.",
+  "language": "en",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
