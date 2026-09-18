@@ -1,10 +1,11 @@
 import { LocateFixed } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
-import { saveOnboardingDraft } from '../../lib/customer-onboarding'
+import { useCustomerOnboarding } from '../../context/CustomerOnboardingContext'
 
 export function CustomerRegister() {
   const navigate = useNavigate()
+  const { setDraft } = useCustomerOnboarding()
   const [params] = useSearchParams()
   const qr = params.get('qr')
   const scanId = params.get('scan')
@@ -48,7 +49,7 @@ export function CustomerRegister() {
   function continueFlow() {
     if (!canContinue || !qr) return
 
-    saveOnboardingDraft({
+    setDraft({
       qrCode: qr,
       scanId,
       phone: phone.trim(),
