@@ -48,8 +48,10 @@ async function request<T>(
 export const droplyApi = {
   health: () => request<{ status: string; service: string }>('/health'),
 
-  resolveQr: (code: string) =>
-    request<PublicQrBootstrap>(`/public/qr/${encodeURIComponent(code)}`),
+  resolveQr: (code: string, track = true) =>
+    request<PublicQrBootstrap>(
+      `/public/qr/${encodeURIComponent(code)}${track ? '' : '?track=0'}`,
+    ),
 
   registerCustomer: (input: {
     qrCode: string
