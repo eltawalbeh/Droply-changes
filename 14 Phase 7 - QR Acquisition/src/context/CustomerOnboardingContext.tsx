@@ -10,6 +10,7 @@ export interface CustomerOnboardingDraft {
   latitude?: number | null
   longitude?: number | null
   notes?: string | null
+  serviceAreaId?: string | null
 }
 
 interface CustomerOnboardingContextValue {
