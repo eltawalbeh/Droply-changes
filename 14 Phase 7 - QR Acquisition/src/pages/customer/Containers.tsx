@@ -21,7 +21,7 @@ export function CustomerContainers() {
   const { data, error, isLoading } = useApiData(
     () => {
       if (!qr) return Promise.reject(new Error('Missing station QR context'))
-      return droplyApi.resolveQr(qr)
+      return droplyApi.resolveQr(qr, false)
     },
     [qr],
   )
