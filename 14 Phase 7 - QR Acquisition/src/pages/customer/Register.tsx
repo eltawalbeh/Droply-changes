@@ -2,6 +2,8 @@ import { LocateFixed } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { useCustomerOnboarding } from '../../context/CustomerOnboardingContext'
+import { useApiData } from '../../hooks/useApiData'
+import { droplyApi } from '../../services/droply-api'
 
 export function CustomerRegister() {
   const navigate = useNavigate()
@@ -9,11 +11,19 @@ export function CustomerRegister() {
   const [params] = useSearchParams()
   const qr = params.get('qr')
   const scanId = params.get('scan')
+  const { data: qrData } = useApiData(
+    () => {
+      if (!qr) return Promise.reject(new Error('Missing station QR context'))
+      return droplyApi.resolveQr(qr, false)
+    },
+    [qr],
+  )
   const [phone, setPhone] = useState('')
   const [fullName, setFullName] = useState('')
   const [addressText, setAddressText] = useState('')
   const [notes, setNotes] = useState('')
   const [pin, setPin] = useState('')
+  const [serviceAreaId, setServiceAreaId] = useState('')
   const [latitude, setLatitude] = useState<number | null>(null)
   const [longitude, setLongitude] = useState<number | null>(null)
   const [locationMessage, setLocationMessage] = useState<string | null>(null)
@@ -24,8 +34,9 @@ export function CustomerRegister() {
       phone.trim().length >= 8 &&
       fullName.trim().length >= 2 &&
       addressText.trim().length >= 4 &&
-      pin.length === 6,
-    [qr, phone, fullName, addressText, pin],
+      pin.length === 6 &&
+      (!qrData?.serviceAreas.length || Boolean(serviceAreaId)),
+    [qr, phone, fullName, addressText, pin, qrData?.serviceAreas.length, serviceAreaId],
   )
 
   function captureLocation() {
@@ -59,6 +70,7 @@ export function CustomerRegister() {
       latitude,
       longitude,
       notes: notes.trim() || null,
+      serviceAreaId: serviceAreaId || null,
     })
 
     navigate(`/customer/containers?qr=${encodeURIComponent(qr)}`)
@@ -91,6 +103,22 @@ export function CustomerRegister() {
             Use current location
           </button>
           {locationMessage ? <p className="text-xs text-slate-500">{locationMessage}</p> : null}
+
+          {qrData?.serviceAreas.length ? (
+            <label className="grid gap-1.5 text-sm font-medium text-slate-700">
+              Delivery area
+              <select
+                value={serviceAreaId}
+                onChange={(e) => setServiceAreaId(e.target.value)}
+                className="rounded-xl border border-slate-300 px-3 py-3 outline-none focus:border-slate-950"
+              >
+                <option value="">Select your area</option>
+                {qrData.serviceAreas.map((area) => (
+                  <option key={area.id} value={area.id}>{area.name}</option>
+                ))}
+              </select>
+            </label>
+          ) : null}
 
           <label className="grid gap-1.5 text-sm font-medium text-slate-700">
             Delivery notes
