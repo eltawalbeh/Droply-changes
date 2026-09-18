@@ -1,14 +1,11 @@
 import { Droplets, Minus, Plus } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { ErrorState } from '../../components/common/ErrorState'
 import { LoadingState } from '../../components/common/LoadingState'
 import { useCustomerSession } from '../../context/CustomerSessionContext'
 import { useApiData } from '../../hooks/useApiData'
-import {
-  clearOnboardingDraft,
-  readOnboardingDraft,
-} from '../../lib/customer-onboarding'
+import { useCustomerOnboarding } from '../../context/CustomerOnboardingContext'
 import { droplyApi } from '../../services/droply-api'
 
 export function CustomerContainers() {
@@ -16,7 +13,7 @@ export function CustomerContainers() {
   const [params] = useSearchParams()
   const qr = params.get('qr')
   const { setSession } = useCustomerSession()
-  const draft = useMemo(() => readOnboardingDraft(), [])
+  const { draft, clearDraft } = useCustomerOnboarding()
   const [quantities, setQuantities] = useState<Record<string, number>>({})
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -55,7 +52,7 @@ export function CustomerContainers() {
       })
 
       if (result.status === 'existing') {
-        clearOnboardingDraft()
+        clearDraft()
         navigate(`/customer/login?qr=${encodeURIComponent(qr)}`, { replace: true })
         return
       }
@@ -65,7 +62,7 @@ export function CustomerContainers() {
         customerId: result.customerId,
         expiresAt: result.sessionExpiresAt,
       })
-      clearOnboardingDraft()
+      clearDraft()
       navigate('/customer', { replace: true })
     } catch (reason) {
       setSubmitError(reason instanceof Error ? reason.message : 'Unable to complete registration')
