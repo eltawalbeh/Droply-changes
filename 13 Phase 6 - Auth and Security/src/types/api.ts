@@ -24,6 +24,11 @@ export interface PublicQrBootstrap {
     price: number
     isActive: boolean
   }>
+  serviceAreas: Array<{
+    id: string
+    name: string
+    driverId?: string | null
+  }>
 }
 
 export interface DriverOrderView extends Order {
